@@ -9,38 +9,38 @@ server.listen(3000, function () {
   var port = server.address().port
   console.log('Example app listening at http://%s:%s', host, port)
 })
-// var five = require("johnny-five");
-// var Spark = require("spark-io");
+var five = require("johnny-five");
+var Spark = require("spark-io");
 var motorR;
 var motorL;
-var servo = true;
+var servo;
 var d = 80;
 
 // spark core initialization
-// var board = new five.Board({
-//   io: new Spark({
-//     token: process.env.SPARK_TOKEN,
-//     deviceId: process.env.SPARK_DEVICE_ID
-//   })
-// });
-//
-// board.on("ready", function() {
-//   servo = new five.Servo({
-//     pin: 'A1'
-//   });
-//   servo.to(d);
-//   console.log('Servo is ready!');
-//
-//   motorL = new five.Motor({
-//     pin: 'A7'
-//   });
-//
-//   motorR = new five.Motor({
-//     pin: 'A6'
-//   });
-//   console.log('Motor is ready!');
-//
-// });
+var board = new five.Board({
+  io: new Spark({
+    token: process.env.SPARK_TOKEN,
+    deviceId: process.env.SPARK_DEVICE_ID
+  })
+});
+
+board.on("ready", function() {
+  servo = new five.Servo({
+    pin: 'A1'
+  });
+  servo.to(d);
+  console.log('Servo is ready!');
+
+  motorL = new five.Motor({
+    pin: 'A7'
+  });
+
+  motorR = new five.Motor({
+    pin: 'A6'
+  });
+  console.log('Motor is ready!');
+
+});
 
 app.use(express.static(__dirname));
 app.use(express.static(__dirname + 'app'));
@@ -59,19 +59,23 @@ io.on('connection', function (socket) {
 
   socket.on('status', function (data) {
     // limitation of phone tilt
-    var gamma = Math.floor(data.gamma);
-    if (gamma > 90) {
-      gamma = 90
-    } else if (gamma < -90) {
-      gamma = -90
+    var beta = Math.floor(data.beta);
+    if (beta > 40) {
+      beta = 40
+    } else if (beta < -40) {
+      beta = -40
     }
     var v 
-    if (Math.abs(gamma) > 0) {
-      v = Math.floor(80 - gamma / 90 * 50);
+    if (Math.abs(beta) > 0) {
+      v = Math.floor(80 - beta / 40 * 50);
     } else {
       v = 80;
     }
     console.log('set to ', v);
+    if (servo) {
+      v = servo.to(v);
+      return socket.emit('respond', {type: 'servo', v: v.toString()});
+    }
   });
 
   // start
