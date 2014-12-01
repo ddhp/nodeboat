@@ -1,10 +1,10 @@
 {
-  "name": "howareu",
+  "name": "nodeboat",
   "version": "0.0.1",
   "authors": [
     "ddhp <sevenknee@gmail.com>"
   ],
-  "description": "simple audio player",
+  "description": "nodeboat",
   "license": "MIT",
   "ignore": [
     "**/.*",
